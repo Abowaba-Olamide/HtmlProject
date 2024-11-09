@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Grid Code</title>
+    <style>
+        body {
+            background-color: #0a162b; /* Set background color */
+            color: white; /* Change text color to white for contrast */
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* ArcGIS default font */
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2em;
+        }
+
+        label, button {
+            font-size: 1.2em;
+            margin-top: 10px;
+            display: block;
+        }
+
+        input[type="text"] {
+            font-size: 1em;
+            padding: 5px;
+            margin: 5px 0;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        pre {
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 600px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .verified {
+            color: green;
+            font-weight: bold;
+        }
+
+        .not-verified {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Verify Health Care Grid Code</h1>
+    <label for="gridCode">Grid Code:</label>
+    <input type="text" id="gridCode" value="aaaa-ahgumc"><br><br>
+    
+    <button onclick="verifyGridCode()">Verify</button>
+    
+    <h2>Response:</h2>
+    <pre id="response"></pre>
+
+    <script>
+        // Constant for the country code
+        const countryCode = "NG";
+
+        async function verifyGridCode() {
+            const gridCode = document.getElementById("gridCode").value;
+            const apiKey = "oPkrz74GWC3lzLPBLfnRLQtJuPjGeLIaI8EcHkaBGO3KGB48zsYj120rimpJQW9pcGd5ToR8eQ4GTFktiG1FLTxrykFPmicr0bQHWLwEB4qfXFE8WBeY6OSGUGZaL6VNFTaqbox3Lm58s38GsDHidZk6gqQo6Ps4yzBQu4aMDUhGEpLPnjce9c00vjvUbEAUgZrPQGAP";
+            const url = `https://gcorea.gridweb.net/external/api/verify-gridcode?gridCode=${gridCode}&countryCode=${countryCode}`;
+
+            try {
+                const response = await fetch(url, {
+                    method: "GET",
+                    headers: {
+                        "API-Key": apiKey
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const responseMessage = data.message; // assuming the response has a 'message' key
+
+                    if (responseMessage === "Verified") {
+                        document.getElementById("response").innerHTML = `<span class="verified">${responseMessage}</span>`;
+                    } else if (responseMessage === "Not Verified") {
+                        document.getElementById("response").innerHTML = `<span class="not-verified">${responseMessage}</span>`;
+                    } else {
+                        document.getElementById("response").textContent = JSON.stringify(data, null, 2); // Default if message is unknown
+                    }
+                } else {
+                    document.getElementById("response").textContent = `Error: ${response.status}`;
+                }
+            } catch (error) {
+                document.getElementById("response").textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
